@@ -5,6 +5,10 @@
 Escriba el codigo que ejecute la accion solicitada en cada pregunta.
 """
 
+import zipfile
+import os
+import pandas as pd
+
 
 def pregunta_01():
     """
@@ -71,3 +75,56 @@ def pregunta_01():
 
 
     """
+def pregunta_01():
+    import zipfile
+    import os
+    import pandas as pd
+
+
+    # Paso 1: Descomprimir el archivo input.zip
+    zip_file = 'files/input.zip'
+    output_dir = '.' # Extraer en la raíz del proyecto
+    #adaptado ya que sacanba /input/input/
+
+    
+    # Verificar si el directorio de salida ya existe, si no, crearlo
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Descomprimir el archivo zip
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+        zip_ref.extractall(output_dir)
+    
+
+
+    output_dir = 'input' #adaptado ya que sacanba /input/input/
+
+    # Paso 2: Función para leer los archivos de texto y etiquetarlos con su sentimiento
+    def leer_archivos(directorio):
+        data = []
+        # Recorremos las carpetas "negative", "positive", "neutral"
+        for sentiment in ['negative', 'positive', 'neutral']:
+            sentiment_dir = os.path.join(directorio, sentiment)
+            for file_name in os.listdir(sentiment_dir):
+                file_path = os.path.join(sentiment_dir, file_name)
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    phrase = file.read().strip()
+                    data.append({'phrase': phrase, 'target': sentiment})
+        return data
+
+    # Paso 3: Leer los datos de entrenamiento y prueba
+    train_data = leer_archivos(os.path.join(output_dir, 'train'))
+    test_data = leer_archivos(os.path.join(output_dir, 'test'))
+
+    # Paso 4: Crear los DataFrames y escribir los archivos CSV
+    train_df = pd.DataFrame(train_data)
+    test_df = pd.DataFrame(test_data)
+
+    # Verificar si la carpeta de salida "output" existe, si no, crearla
+    output_folder = 'files/output/'
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    # Guardar los archivos CSV
+    train_df.to_csv(os.path.join(output_folder, 'train_dataset.csv'), index=False)
+    test_df.to_csv(os.path.join(output_folder, 'test_dataset.csv'), index=False)
